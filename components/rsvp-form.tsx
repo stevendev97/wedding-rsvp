@@ -37,34 +37,46 @@ export function RsvpForm() {
   }, [])
 
   const handleSubmit = async () => {
-    if (attending === null || (!email && !phone) || name.trim() === "") {
-      alert("Please provide your name and either an email or a phone number.");
+    if (attending === null) {
+      alert("Please select Yes or No.");
       return;
     }
-  
+
+    // For No: only name is required
+    if (attending === false) {
+      if (name.trim() === "") {
+        alert("Please provide your name.");
+        return;
+      }
+    } else {
+      // For Yes: name + (email or phone) required
+      if (name.trim() === "" || (!email.trim() && !phone.trim())) {
+        alert("Please provide your name and either an email or a phone number.");
+        return;
+      }
+    }
+
     const rsvpData = {
-      name,
-      email,
-      phone,
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
       attending,
       guests: attending ? guests : 0,
       total: attending ? guests + 1 : 0,
     };
-  
+
     try {
       const response = await fetch("/api/rsvp", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(rsvpData),
       });
-  
+
       if (response.ok) {
         setIsSubmitted(true);
       } else {
         const error = await response.json();
-        alert(error.error); // Show error message to the user
+        alert(error.error);
       }
     } catch (error) {
       console.error("Error submitting RSVP:", error);
@@ -72,11 +84,14 @@ export function RsvpForm() {
   };
 
   const canSubmit =
-    (email.trim() !== "" || phone.trim() !== "") &&
-    attending !== null &&
-    (attending === false || guests >= 0);
+    attending === false
+      ? name.trim() !== ""
+      : name.trim() !== "" &&
+        (email.trim() !== "" || phone.trim() !== "") &&
+        attending !== null &&
+        guests >= 0;
 
-  const total = attending ? guests + 1 : 0
+  const total = attending ? guests + 1 : 0;
 
   if (isSubmitted) {
     return (
@@ -122,10 +137,19 @@ export function RsvpForm() {
           </div>
 
           {attending === false && (
-            <div className="p-4 bg-muted rounded-lg">
-              <p className="text-muted-foreground text-center">We'll miss you! Thanks for letting us know.</p>
+          <div className="space-y-4">
+            <div className="space-y-4">
+              <Label className="text-base font-medium">Your Name</Label>
+              <input
+                type="text"
+                className="w-full p-2 border rounded"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
-          )}
+          </div>
+        )}
 
           {attending === true && (
             <div className="space-y-4">

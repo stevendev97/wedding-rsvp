@@ -8,11 +8,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { name, email, phone, ...data } = req.body; // include name
+  const { name, email, phone, attending, ...data } = req.body;
 
   try {
+    if (attending === false) {
+      if (!name || name.trim() === "") {
+        return res.status(400).json({ error: "Please provide your name." });
+      }
+      const docRef = await addDoc(collection(db, "rsvps"), {
+        name: name.trim(),
+        email: null,
+        phone: null,
+        attending: false,
+        guests: 0,
+        total: 0,
+        ...data,
+      });
+      return res.status(200).json({ message: "RSVP saved", id: docRef.id });
+    }
+
+    // attending === true path
     if (!name || (!email && !phone)) {
-      return res.status(400).json({ error: "Please provide your name and either an email or a phone number." });
+      return res
+        .status(400)
+        .json({ error: "Please provide your name and either an email or a phone number." });
     }
 
     let emailSnapshot = { empty: true };
@@ -25,12 +44,10 @@ export default async function handler(req, res) {
       const emailQuery = query(collection(db, "rsvps"), where("email", "==", emailVal));
       emailSnapshot = await getDocs(emailQuery);
     }
-
     if (phoneVal) {
       const phoneQuery = query(collection(db, "rsvps"), where("phone", "==", phoneVal));
       phoneSnapshot = await getDocs(phoneQuery);
     }
-
     if (!emailSnapshot.empty || !phoneSnapshot.empty) {
       return res.status(400).json({ error: "RSVP already submitted for this email or phone number." });
     }
@@ -39,7 +56,9 @@ export default async function handler(req, res) {
       name: name.trim(),
       email: emailVal || null,
       phone: phoneVal || null,
-      ...data,
+      attending: true,
+      guests: data.guests ?? 0,
+      total: data.total ?? 1,
     });
 
     return res.status(200).json({ message: "RSVP saved", id: docRef.id });
