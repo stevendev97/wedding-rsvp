@@ -17,8 +17,8 @@ export default async function handler(req, res) {
       }
       const docRef = await addDoc(collection(db, "rsvps"), {
         name: name.trim(),
-        email: null,
-        phone: null,
+        email: '',
+        phone: '',
         attending: false,
         guests: 0,
         total: 0,

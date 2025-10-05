@@ -87,9 +87,9 @@ export function RsvpForm() {
     attending === false
       ? name.trim() !== ""
       : name.trim() !== "" &&
-        (email.trim() !== "" || phone.trim() !== "") &&
-        attending !== null &&
-        guests >= 0;
+      (email.trim() !== "" || phone.trim() !== "") &&
+      attending !== null &&
+      guests >= 0;
 
   const total = attending ? guests + 1 : 0;
 
@@ -137,19 +137,19 @@ export function RsvpForm() {
           </div>
 
           {attending === false && (
-          <div className="space-y-4">
             <div className="space-y-4">
-              <Label className="text-base font-medium">Your Name</Label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <div className="space-y-4">
+                <Label className="text-base font-medium">Your Name</Label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
           {attending === true && (
             <div className="space-y-4">
@@ -198,7 +198,7 @@ export function RsvpForm() {
 
         <div className="flex gap-3">
           <Button onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
-            Submit RSVP
+            {attending === false ? "Submit" : "Submit RSVP"}
           </Button>
 
           <Button asChild variant="ghost">
