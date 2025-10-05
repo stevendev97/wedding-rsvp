@@ -20,6 +20,7 @@ export function RsvpForm() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
+  const [name, setName] = useState("")
 
   // Load saved RSVP data on mount
   useEffect(() => {
@@ -36,19 +37,20 @@ export function RsvpForm() {
   }, [])
 
   const handleSubmit = async () => {
-    if (attending === null || (!email && !phone)) {
-      alert("Please provide either an email or a phone number.");
+    if (attending === null || (!email && !phone) || name.trim() === "") {
+      alert("Please provide your name and either an email or a phone number.");
       return;
     }
-
+  
     const rsvpData = {
+      name,
       email,
       phone,
       attending,
       guests: attending ? guests : 0,
       total: attending ? guests + 1 : 0,
     };
-
+  
     try {
       const response = await fetch("/api/rsvp", {
         method: "POST",
@@ -57,7 +59,7 @@ export function RsvpForm() {
         },
         body: JSON.stringify(rsvpData),
       });
-
+  
       if (response.ok) {
         setIsSubmitted(true);
       } else {
@@ -73,7 +75,7 @@ export function RsvpForm() {
     (email.trim() !== "" || phone.trim() !== "") &&
     attending !== null &&
     (attending === false || guests >= 0);
-    
+
   const total = attending ? guests + 1 : 0
 
   if (isSubmitted) {
@@ -128,6 +130,17 @@ export function RsvpForm() {
           {attending === true && (
             <div className="space-y-4">
               <GuestCounter value={guests} onChange={setGuests} />
+
+              <div className="space-y-4">
+                <Label className="text-base font-medium">Your Name</Label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
 
               <div className="space-y-4">
                 <Label className="text-base font-medium">Your Email</Label>

@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       }
 
       // Save new RSVP
-      const docRef = await addDoc(collection(db, "rsvps"), { email, phone, ...data });
+      const docRef = await addDoc(collection(db, "rsvps"), { name, email, phone, ...data });
       res.status(200).json({ message: "RSVP saved", id: docRef.id });
     } catch (error) {
       console.error("Error saving RSVP:", error);
